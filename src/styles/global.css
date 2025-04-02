@@ -1,13 +1,14 @@
 /* would like to ignore ./src/pages/og-image/[slug].png.ts */
 @import "tailwindcss";
+
+/* Import JetBrains Mono font. */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
+
 /* config for tailwindcss-typography plugin */
 @config "../../tailwind.config.ts";
 
 /* use a selector-based strategy for dark mode */
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-
-/* Import JetBrains Mono font. */
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
 
 /* you could refactor below to use light-dark(), depending on your target audience */
 @theme {
