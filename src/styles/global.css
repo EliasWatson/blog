@@ -125,3 +125,10 @@
 	--tw-prose-quotes: var(--color-quote);
 	--tw-prose-th-borders: #666;
 }
+
+@font-face {
+	font-family: "C64";
+	src:
+		url("/c64/C64_Pro_Mono-STYLE.woff2") format("woff2"),
+		url("/c64/C64_Pro_Mono-STYLE.woff") format("woff");
+}
