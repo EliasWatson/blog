@@ -53,7 +53,7 @@ We're going to duplicate the branch, but with updated filenames.
 This will produce changes with the exact same diffs as the original branch, but the diffs will point to the new filenames.
 
 You'll start with the first commit on your branch and work your way towards the head.
-For each change, you'll create a new change on your new branch, `jj restore --from <old_change>`, then run your renaming script.
+For each change, you'll create a new change on your new branch, `jj restore --from <original_change>`, then run your renaming script.
 
 It is important to note that you need a change at the root of your new branch that only performs the renames.
 You'll see why this is needed later.
@@ -259,9 +259,9 @@ Suddenly all the conflicts related to renamed files will go away and you'll just
 
 Now you'll just resolve the remaining conflicts on the new branch, which are the conflicts that would have been there even if the files weren't renamed.
 
-### Step 5 - Rebase the old branch
+### Step 5 - Rebase the original branch
 
-Rebase the old branch onto the latest version of main/master.
+Rebase the original branch onto the latest version of main/master.
 Ignore the conflicts, we're about to fix that.
 
 ### Step 6 - Copy the new branch back to the original branch
