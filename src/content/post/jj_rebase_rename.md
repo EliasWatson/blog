@@ -55,8 +55,10 @@ This will produce changes with the exact same diffs as the original branch, but 
 You'll start with the first commit on your branch and work your way towards the head.
 For each change, you'll create a new change on your new branch, `jj restore --from <original_change>`, then run your renaming script.
 
-It is important to note that you need a change at the root of your new branch that only performs the renames.
-You'll see why this is needed later.
+:::important
+You also need a change at the root of your new branch that only performs the renames.
+You'll see why this is necessary later.
+:::
 
 Let's say your `jj log` looks like:
 
@@ -295,8 +297,10 @@ You would execute:
     jj edit xyvkxnlu
     jj restore --from lkwrmmxl
 
+:::caution
 Make sure you are doing this in the right direction.
 We want to overwrite the original changes with the contents of the new changes, not vice-versa.
+:::
 
 ### Done!
 
