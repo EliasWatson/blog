@@ -10,8 +10,8 @@ Let's say you have a branch that modifies files `A`, `B`, and `C`.
 You want to rebase your branch on the latest version of main/master, but you discover that those files have been renamed.
 `A` is now `D`, `B` is `E`, and `C` is `F`.
 You hope that jj/git will be smart enough to know it just needs to apply your diffs to a different file now, but you are horrified to discover that it doesn't.
-Instead, jj complains that the rev is trying to edit a file that doesn't exist, so your conflict diff is just the entire state of the file at that rev, which isn't super helpful.
-If your changes are minimal, then it's not too hard to just manually transfer them over to the new files, but what if you had 20+ revs with a significant number of changes?
+Instead, jj complains that the change is trying to edit a file that doesn't exist, so your conflict diff is just the entire state of the file at that change, which isn't super helpful.
+If your changes are minimal, then it's not too hard to just manually transfer them over to the new files, but what if you had 20+ changes with a significant number of changes?
 Manually copying the changes to the new file is going to take a long time and there's a good chance you'll miss something.
 
 I ran into this exact scenario the other day.
@@ -20,14 +20,14 @@ It took me hours to come up with a solution, but I'm pretty happy with it.
 
 ## Solution
 
-The basic idea is that we simply rename the files in each of our revs.
+The basic idea is that we simply rename the files in each of our changes.
 However, this isn't as easy as it sounds.
 
-If you rename the files in the first rev of your branch, all of the later revs will have conflicts.
-The issue there is that if you rename the files in a rev with conflicts, the conflicts will just get moved over to the new file, but the conflicts won't be resolved.
+If you rename the files in the first change of your branch, all of the later changes will have conflicts.
+The issue there is that if you rename the files in a change with conflicts, the conflicts will just get moved over to the new file, but the conflicts won't be resolved.
 
 So what if you instead work from the head of the branch down to the root of the branch?
-Once you rename the files in the second rev from the top, the head rev will have conflicts, since both revs rename the files.
+Once you rename the files in the second change from the top, the head change will have conflicts, since both changes rename the files.
 
 So this seems almost impossible without adding a new feature to jj.
 However, it turns out it is possible, it just requires a little extra work.
@@ -36,7 +36,7 @@ However, it turns out it is possible, it just requires a little extra work.
 
 You'll need to create a script that renames the files in your repo correctly.
 Don't worry about updating any paths inside of the files, you just need to `mv` the file to the new location.
-This script should live outside of your repo so you have access to it across all revs.
+This script should live outside of your repo so you have access to it across all changes.
 
 ```bash
 # rename-files.sh
@@ -50,12 +50,12 @@ mv C F
 
 This is the magic right here.
 We're going to duplicate the branch, but with updated filenames.
-This will produce revs with the exact same diffs as the original branch, but the diffs will point to the new filenames.
+This will produce changes with the exact same diffs as the original branch, but the diffs will point to the new filenames.
 
 You'll start with the first commit on your branch and work your way towards the head.
-For each rev, you'll create a new rev on your new branch, `jj restore --from <old_rev>`, then run your renaming script.
+For each change, you'll create a new change on your new branch, `jj restore --from <old_change>`, then run your renaming script.
 
-It is important to note that you need a rev at the root of your new branch that only performs the renames.
+It is important to note that you need a change at the root of your new branch that only performs the renames.
 You'll see why this is needed later.
 
 Let's say your `jj log` looks like:
@@ -69,7 +69,7 @@ Let's say your `jj log` looks like:
     ○  tsokkvqk ewatson@example.com 2025-05-23 09:41:30 old-main e5aa0c4e
 
 First, we'll branch off of `old-main` and rename the files.
-This rev is unlike the others we'll make since it isn't correlated with any rev in the original branch.
+This change is unlike the others we'll make since it isn't correlated with any change in the original branch.
 
     $ jj new t
     Working copy  (@) now at: nwkxvunp 261d97db (empty) (no description set)
@@ -97,7 +97,7 @@ This rev is unlike the others we'll make since it isn't correlated with any rev 
     ├─╯  Edit A & B
     ○  tsokkvqk ewatson@example.com 2025-05-23 09:57:54 old-main 9d9a3630
 
-Next, create a new rev, `jj restore` from the first rev on the original branch, and run your renaming script.
+Next, create a new change, `jj restore` from the first change on the original branch, and run your renaming script.
 
     $ jj new
     Working copy  (@) now at: wskxplyw 6313015d (empty) (no description set)
@@ -141,8 +141,8 @@ Next, create a new rev, `jj restore` from the first rev on the original branch, 
     ○  tsokkvqk ewatson@example.com 2025-05-23 09:57:54 old-main 9d9a3630
 
 You can copy over the description using the following command (assuming you're using bash/zsh/etc).
-This isn't necessary, but makes it easier to figure out which revs go together.
-Note that you'll have to replace `no` with the ID of the original rev.
+This isn't necessary, but makes it easier to figure out which changes go together.
+Note that you'll have to replace `no` with the ID of the original change.
 
     $ jj desc -m "$(jj log --no-graph -r no -T 'description')"
 
@@ -162,7 +162,7 @@ Note that you'll have to replace `no` with the ID of the original rev.
     ├─╯  Edit A & B
     ○  tsokkvqk ewatson@example.com 2025-05-23 09:57:54 old-main 9d9a3630
 
-Now we repeat the same steps for the next rev.
+Now we repeat the same steps for the next change.
 
     $ jj new
     Working copy  (@) now at: srqvwpll 671820eb (empty) (no description set)
@@ -202,7 +202,7 @@ Now we repeat the same steps for the next rev.
     ├─╯  Edit A & B
     ○  tsokkvqk ewatson@example.com 2025-05-23 09:57:54 old-main 9d9a3630
 
-And again for the final rev.
+And again for the final change.
 
     $ jj new
     Working copy  (@) now at: lkwrmmxl 458d5336 (empty) (no description set)
@@ -252,7 +252,7 @@ And importantly, the actual rename operation occurs in `nwkxvunp`, which contain
 Now you'll want to rebase the new branch on the latest version of main/master.
 You'll notice that you get conflicts again!
 Have we just wasted a bunch of time?
-Fear not, just `jj abandon` that extra rev (e.g. `nwkxvunp`) we had at the beginning of the new branch, the one that just has renames and no other changes.
+Fear not, just `jj abandon` that extra change (e.g. `nwkxvunp`) we had at the beginning of the new branch, the one that just has renames and no other changes.
 Suddenly all the conflicts related to renamed files will go away and you'll just be left with the true conflicts you care about.
 
 ### Step 4 - Resolve the true conflicts
@@ -266,8 +266,8 @@ Ignore the conflicts, we're about to fix that.
 
 ### Step 6 - Copy the new branch back to the original branch
 
-For each rev on the original branch, starting at the root and going to the head, execute `jj restore --from <new_rev_id>`.
-This copies the contents of the news rev into the original revs.
+For each change on the original branch, starting at the root and going to the head, execute `jj restore --from <new_change_id>`.
+This copies the contents of the news change into the original changes.
 
 So for the earlier example:
 
@@ -296,7 +296,7 @@ You would execute:
     jj restore --from lkwrmmxl
 
 Make sure you are doing this in the right direction.
-We want to overwrite the original revs with the contents of the new revs, not vice-versa.
+We want to overwrite the original changes with the contents of the new changes, not vice-versa.
 
 ### Done!
 
