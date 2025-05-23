@@ -46,7 +46,6 @@ mv B E
 mv C F
 ```
 
-
 ### Step 2 - Duplicate the branch
 
 This is the magic right here.
@@ -76,9 +75,9 @@ This rev is unlike the others we'll make since it isn't correlated with any rev 
     Working copy  (@) now at: nwkxvunp 261d97db (empty) (no description set)
     Parent commit (@-)      : tsokkvqk 9d9a3630 old-main | (no description set)
     Added 0 files, modified 3 files, removed 0 files
-    
+
     $ rename-files.sh
-    
+
     $ jj st
     Working copy changes:
     R {A => D}
@@ -86,7 +85,7 @@ This rev is unlike the others we'll make since it isn't correlated with any rev 
     R {C => F}
     Working copy  (@) : nwkxvunp 575b1efe (no description set)
     Parent commit (@-): tsokkvqk 9d9a3630 old-main | (no description set)
-    
+
     $ jj log
     @  nwkxvunp ewatson@example.com 2025-05-23 09:59:16 575b1efe
     │  (no description set)
@@ -103,12 +102,12 @@ Next, create a new rev, `jj restore` from the first rev on the original branch, 
     $ jj new
     Working copy  (@) now at: wskxplyw 6313015d (empty) (no description set)
     Parent commit (@-)      : nwkxvunp 575b1efe (no description set)
-    
+
     $ jj restore --from no
     Working copy  (@) now at: wskxplyw f69e74a2 (no description set)
     Parent commit (@-)      : nwkxvunp 575b1efe (no description set)
     Added 3 files, modified 0 files, removed 3 files
-    
+
     $ jj st
     Working copy changes:
     A A
@@ -118,16 +117,16 @@ Next, create a new rev, `jj restore` from the first rev on the original branch, 
     D E
     Working copy  (@) : wskxplyw f69e74a2 (no description set)
     Parent commit (@-): nwkxvunp 575b1efe (no description set)
-    
+
     $ rename-files.sh
-    
+
     $ jj st
     Working copy changes:
     M D
     M E
     Working copy  (@) : wskxplyw 33e721b0 (no description set)
     Parent commit (@-): nwkxvunp 575b1efe (no description set)
-    
+
     $ jj log
     @  wskxplyw ewatson@example.com 2025-05-23 10:05:15 33e721b0
     │  (no description set)
@@ -146,10 +145,10 @@ This isn't necessary, but makes it easier to figure out which revs go together.
 Note that you'll have to replace `no` with the ID of the original rev.
 
     $ jj desc -m "$(jj log --no-graph -r no -T 'description')"
-    
+
     Working copy  (@) now at: wskxplyw 8980e953 Edit A & B
     Parent commit (@-)      : nwkxvunp 575b1efe (no description set)
-    
+
     $ jj log
     @  wskxplyw ewatson@example.com 2025-05-23 10:07:39 8980e953
     │  Edit A & B
@@ -168,26 +167,26 @@ Now we repeat the same steps for the next rev.
     $ jj new
     Working copy  (@) now at: srqvwpll 671820eb (empty) (no description set)
     Parent commit (@-)      : wskxplyw 8980e953 Edit A & B
-    
+
     $ jj restore --from u
     Working copy  (@) now at: srqvwpll 77da061f (no description set)
     Parent commit (@-)      : wskxplyw 8980e953 Edit A & B
     Added 3 files, modified 0 files, removed 3 files
-    
+
     $ rename-files.sh
-    
+
     $ jj desc -m "$(jj log --no-graph -r u -T 'description')"
-    
+
     Working copy  (@) now at: srqvwpll c3f5ee3f Edit B & C
     Parent commit (@-)      : wskxplyw 8980e953 Edit A & B
-    
+
     $ jj st
     Working copy changes:
     M E
     M F
     Working copy  (@) : srqvwpll c3f5ee3f Edit B & C
     Parent commit (@-): wskxplyw 8980e953 Edit A & B
-    
+
     $ jj log
     @  srqvwpll ewatson@example.com 2025-05-23 10:11:25 c3f5ee3f
     │  Edit B & C
@@ -208,26 +207,26 @@ And again for the final rev.
     $ jj new
     Working copy  (@) now at: lkwrmmxl 458d5336 (empty) (no description set)
     Parent commit (@-)      : srqvwpll c3f5ee3f Edit B & C
-    
+
     $ jj restore --from x
     Working copy  (@) now at: lkwrmmxl 2305af1f (no description set)
     Parent commit (@-)      : srqvwpll c3f5ee3f Edit B & C
     Added 3 files, modified 0 files, removed 3 files
-    
+
     $ rename-files.sh
-    
+
     $ jj desc -m "$(jj log --no-graph -r x -T 'description')"
-    
+
     Working copy  (@) now at: lkwrmmxl 99d2177e Edit A & C
     Parent commit (@-)      : srqvwpll c3f5ee3f Edit B & C
-    
+
     $ jj st
     Working copy changes:
     M D
     M F
     Working copy  (@) : lkwrmmxl 99d2177e Edit A & C
     Parent commit (@-): srqvwpll c3f5ee3f Edit B & C
-    
+
     $ jj log
     @  lkwrmmxl ewatson@example.com 2025-05-23 10:12:54 99d2177e
     │  Edit A & C
@@ -248,9 +247,6 @@ And again for the final rev.
 So now we have a new branch that is almost identical to the original branch, but has the new filenames.
 And importantly, the actual rename operation occurs in `nwkxvunp`, which contains no other changes.
 
-
-
-
 ### Step 3 - Rebase the new branch
 
 Now you'll want to rebase the new branch on the latest version of main/master.
@@ -259,23 +255,14 @@ Have we just wasted a bunch of time?
 Fear not, just `jj abandon` that extra rev (e.g. `nwkxvunp`) we had at the beginning of the new branch, the one that just has renames and no other changes.
 Suddenly all the conflicts related to renamed files will go away and you'll just be left with the true conflicts you care about.
 
-
-
-
 ### Step 4 - Resolve the true conflicts
 
 Now you'll just resolve the remaining conflicts on the new branch, which are the conflicts that would have been there even if the files weren't renamed.
-
-
-
 
 ### Step 5 - Rebase the old branch
 
 Rebase the old branch onto the latest version of main/master.
 Ignore the conflicts, we're about to fix that.
-
-
-
 
 ### Step 6 - Copy the new branch back to the original branch
 
@@ -301,21 +288,17 @@ You would execute:
 
     jj edit nozrrvkk
     jj restore --from wskxplyw
-    
+
     jj edit uuxpkymp
     jj restore --from srqvwpll
-    
+
     jj edit xyvkxnlu
     jj restore --from lkwrmmxl
 
 Make sure you are doing this in the right direction.
 We want to overwrite the original revs with the contents of the new revs, not vice-versa.
 
-
-
-
 ### Done!
 
 You can delete the new branch now if you want.
 Our original branch is caught up with main/master and all the conflicts have been resolved.
-
