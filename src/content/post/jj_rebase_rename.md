@@ -267,7 +267,7 @@ Ignore the conflicts, we're about to fix that.
 ### Step 6 - Copy the new branch back to the original branch
 
 For each change on the original branch, starting at the root and going to the head, execute `jj restore --from <new_change_id>`.
-This copies the contents of the news change into the original changes.
+This copies the contents of the new change into the original changes.
 
 So for the earlier example:
 
