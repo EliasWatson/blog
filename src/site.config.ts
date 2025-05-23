@@ -52,7 +52,7 @@ export const expressiveCodeOptions: AstroExpressiveCodeOptions = {
 		codeFontFamily:
 			'JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;',
 		codeFontSize: "0.875rem",
-		codeLineHeight: "1.7142857rem",
+		codeLineHeight: "1.1rem",
 		codePaddingInline: "1rem",
 		frames: {
 			frameBoxShadowCssValue: "none",
